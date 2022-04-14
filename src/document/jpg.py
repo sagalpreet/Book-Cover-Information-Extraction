@@ -1,27 +1,28 @@
-from document import Document
+import context
+from document.document import Document
 import pytesseract
 from PIL import Image, ImageFilter
 import numpy as np
 from io import StringIO
 import pandas as pd
-import context
-from extractor.extractor import Heuristic_Extractor
+from extractor.heuristic_extractor import Heuristic_Extractor
 
 class JPG(Document):
     def __init__(self, path: str = None):
+        self.__content = None
+        self.info = {}
+
         if (path):
-            self.__path = self.read(path)
-            self.__extract()
+            self.read(path)
         else:
             self.__path = None
-            self.__content = None
-            self.__info = {}
         
     def read(self, path: str):
         '''
         store path
         '''
         self.__path = path
+        self.__parse()
         self.__extract()
     
     def __parse(self):
@@ -39,4 +40,4 @@ class JPG(Document):
         self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t')
         
     def __extract(self):
-        self.__info = Heuristic_Extractor.heuristic_extract((self.__content))
+        self.info = Heuristic_Extractor.extract(self.__content)

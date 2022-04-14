@@ -1,10 +1,12 @@
 import context
-from os import path, listdir, isfile
+from os import path, listdir
+from os.path import isfile
 from os.path import dirname, basename
 from warnings import WarningMessage
-from document.jpg import JPG, PNG
+from document.jpg import JPG
+from document.png import PNG
 from path.path import PATH_TYPE
-from document import SUPPORTED_DOCUMENTS
+from document.document import SUPPORTED_DOCUMENTS
 import pandas as pd
 
 EXTENSION_MAP = {
@@ -44,7 +46,7 @@ class App:
         return True
 
     def __get_extension(self, filename):
-        return path.splitext(path)[1]
+        return path.splitext(filename)[1]
 
     def run(self):
 
@@ -54,15 +56,15 @@ class App:
             info = EXTENSION_MAP[self.__get_extension(f)](f).info
             output.loc[len(output.index)] = [
                 info['title'],
-                info['authors'],
-                info['publishers'],
+                '\n'.join(info['authors']),
+                '\n'.join(info['publishers']),
                 info['isbn']
             ]
 
 
         try:
             writer = pd.ExcelWriter(f"{dirname(self.files[0])}/output.xlsx", engine='openpyxl')
-            output.to_excel(writer, sheet_name = f'{basename(self.files[0])}')
+            output.to_excel(writer, sheet_name = f'{basename(self.files[0])}', encoding='utf8')
             writer.save()
         except IndexError:
             pass

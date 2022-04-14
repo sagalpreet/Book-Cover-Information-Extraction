@@ -4,13 +4,11 @@ import context
 from extractor.extractor import Extractor
 from os.path import abspath, dirname, join
 import sqlite3
-import spacy
-from spacy import displacy
 import en_core_web_sm
 import re
 
 class Heuristic_Extractor(Extractor):
-    def extract(content: pd.DataFrame, confidence = 50):
+    def extract(df: pd.DataFrame, confidence = 50):
 
         # store extracted information in a dictionary
         info = {
@@ -42,7 +40,7 @@ class Heuristic_Extractor(Extractor):
         df = df[df['conf'] > confidence]
 
         # removing all whitespaces detected
-        df = df[df['text'].str.strip != '']
+        df = df[df['text'].str.strip() != '']
 
         return df
 
@@ -107,16 +105,16 @@ class Heuristic_Extractor(Extractor):
             return []
 
         # calculate probability of each block
-        prob_author_block = ()
+        prob_author_block = []
         temp_sum = 0
         for block_num in set(possible_blocks['block_num']):
             pos = possible_blocks[possible_blocks['block_num'] == block_num]
             total = df[df['block_num'] == block_num]
             mean_height = mean(total['height'])
-            prob = pos.size/total.size
+            prob = pos.shape[0]/total.shape[0]
 
             temp_sum += prob
-            prob_author_block.append((prob, block_num, mean_height))
+            prob_author_block.append([prob, block_num, mean_height])
         
         # divide by sum of all probabilites to convert into valid probability distribution
         for i in range(len(prob_author_block)):
@@ -177,7 +175,7 @@ class Heuristic_Extractor(Extractor):
             phrase = ' '.join(df[df['block_num'] == block_num]['text'])
             isbn_regex = "^(?:ISBN(?:-1[03])?:?●)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-●]){3})[-●0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-●]){4})[-●0-9]{17}$)(?:97[89][-●]?)?[0-9]{1,5}[-●]?[0-9]+[-●]?[0-9]+[-●]?[0-9X]$"
             
-            if (re.search(isbn_regex), phrase):
+            if (re.search(isbn_regex, phrase)):
                 return phrase
             
         return ""

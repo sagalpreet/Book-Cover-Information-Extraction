@@ -1,6 +1,6 @@
-from genericpath import isfile
+import context
 import sys
-import os.path as path
+from os.path import isfile, isdir
 from document.document import SUPPORTED_DOCUMENTS
 from app.app import App
 from path.path import PATH_TYPE
@@ -17,8 +17,8 @@ def main():
 
     # check if the path points to correct location and determine if it is a file of a directory
     CATEGORY = None
-    if (path.isfile(PATH)): CATEGORY = PATH_TYPE.FILE
-    elif (path.isdir(PATH)): CATEGORY = PATH_TYPE.DIRECTORY
+    if (isfile(PATH)): CATEGORY = PATH_TYPE.FILE
+    elif (isdir(PATH)): CATEGORY = PATH_TYPE.DIRECTORY
     else:
         raise FileNotFoundError("Invalid Path")
 

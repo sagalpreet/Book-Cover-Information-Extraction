@@ -1,5 +1,2 @@
-from os.path import abspath, dirname, join
-import sys
-
-root = abspath(join(dirname(__file__), '..'))
-sys.path.append(root)
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
