@@ -5,17 +5,21 @@ SUPPORTED_DOCUMENTS = ['jpg', 'png']
 class Document(ABC):
     @abstractmethod
     def __init__(self):
-        self.content = None
-        self.extracted_information = {}
+        self.__content = None
+        self.__info = {}
     
     @abstractmethod
     def read(self):
         pass
     
     @abstractmethod
-    def parse(self):
+    def __parse(self):
+        pass
+
+    @abstractmethod
+    def __extract(self):
         pass
     
     @property
-    def extracted_information(self):
-        return self.extracted_information
+    def info(self):
+        return self.info

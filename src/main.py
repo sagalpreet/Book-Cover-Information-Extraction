@@ -9,21 +9,21 @@ def main():
     num_args = len(sys.argv)
 
     # check for exactly one command line argument
-    if (num_args > 2):
+    if (num_args != 2):
         raise ValueError(f"The program expects exactly one argument but {num_args - 1} were specified")
 
     # extract path
     PATH = sys.argv[1]
 
     # check if the path points to correct location and determine if it is a file of a directory
-    TYPE = None
-    if (path.isfile(PATH)): TYPE = PATH_TYPE.FILE
-    elif (path.isdir(PATH)): TYPE = PATH_TYPE.DIRECTORY
+    CATEGORY = None
+    if (path.isfile(PATH)): CATEGORY = PATH_TYPE.FILE
+    elif (path.isdir(PATH)): CATEGORY = PATH_TYPE.DIRECTORY
     else:
         raise FileNotFoundError("Invalid Path")
 
     # process the document
-    app = App(PATH, TYPE)
+    app = App(PATH, CATEGORY)
     app.run()
 
 
