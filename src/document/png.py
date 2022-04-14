@@ -9,18 +9,20 @@ from extractor.heuristic_extractor import Heuristic_Extractor
 
 class PNG(Document):
     def __init__(self, path: str = None):
+        self.__content = None
+        self.info = {}
+
         if (path):
-            self.__path = self.read(path)
+            self.read(path)
         else:
             self.__path = None
-            self.__content = None
-            self.__info = {}
         
     def read(self, path: str):
         '''
         store path
         '''
         self.__path = path
+        self.__parse()
         self.__extract()
     
     def __parse(self):
@@ -38,4 +40,4 @@ class PNG(Document):
         self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t')
         
     def __extract(self):
-        self.__info = Heuristic_Extractor.extract((self.__content))
+        self.info = Heuristic_Extractor.extract(self.__content)
