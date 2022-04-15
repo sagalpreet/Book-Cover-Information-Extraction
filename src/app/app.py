@@ -48,7 +48,7 @@ class App:
     def __get_extension(self, filename):
         return path.splitext(filename)[1]
 
-    def run(self):
+    def run(self, file_path = f"output.xlsx"):
 
         output = pd.DataFrame(columns = ["title", "authors", "publishers", "isbn"])
 
@@ -63,10 +63,10 @@ class App:
 
 
         try:
-            file_path = f"output.xlsx"
-            print(file_path)
             writer = pd.ExcelWriter(file_path, engine='openpyxl')
             output.to_excel(writer, sheet_name = f'{basename(self.files[0])}', encoding='utf8')
             writer.save()
+            print(f"Saved/ at {file_path}")
+            print(output)
         except IndexError:
             pass
