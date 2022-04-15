@@ -6,6 +6,7 @@ import numpy as np
 from io import StringIO
 import pandas as pd
 from extractor.heuristic_extractor import Heuristic_Extractor
+from csv import QUOTE_NONE
 
 class PNG(Document):
     def __init__(self, path: str = None):
@@ -37,7 +38,7 @@ class PNG(Document):
         except:
             raise FileNotFoundError("Invalid Path")
 
-        self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t')
+        self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t', quoting=QUOTE_NONE)
         
     def __extract(self):
         self.info = Heuristic_Extractor.extract(self.__content)

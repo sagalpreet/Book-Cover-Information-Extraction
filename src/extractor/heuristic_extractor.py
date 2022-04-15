@@ -7,8 +7,10 @@ import sqlite3
 import en_core_web_sm
 import re
 
+nlp = en_core_web_sm.load()
+
 class Heuristic_Extractor(Extractor):
-    def extract(df: pd.DataFrame, confidence = 50):
+    def extract(df: pd.DataFrame, confidence = -1):
 
         # store extracted information in a dictionary
         info = {
@@ -40,7 +42,7 @@ class Heuristic_Extractor(Extractor):
         df = df[df['conf'] > confidence]
 
         # removing all whitespaces detected
-        df = df[df['text'].str.strip() != '']
+        df = df[df['text'].astype(str).str.strip() != '']
 
         return df
 
@@ -82,8 +84,8 @@ class Heuristic_Extractor(Extractor):
             res = []
                 
             for i in name:
-                res1 = list(cur.execute("select 1 where exists (select * from FN where first_name = ?)", [i]))
-                res2 = list(cur.execute("select 1 where exists (select * from LN where first_name = ?)", [i]))
+                res1 = list(cur.execute("select 1 where exists (select * from FN where first_name = ? collate nocase)", [i]))
+                res2 = list(cur.execute("select 1 where exists (select * from LN where first_name = ? collate nocase)", [i]))
                 res.append(res1 != [] or res2 != [])
             
             if (is_str): res = res[0]
@@ -106,19 +108,13 @@ class Heuristic_Extractor(Extractor):
 
         # calculate probability of each block
         prob_author_block = []
-        temp_sum = 0
         for block_num in set(possible_blocks['block_num']):
             pos = possible_blocks[possible_blocks['block_num'] == block_num]
             total = df[df['block_num'] == block_num]
             mean_height = mean(total['height'])
             prob = pos.shape[0]/total.shape[0]
-
-            temp_sum += prob
+            
             prob_author_block.append([prob, block_num, mean_height])
-        
-        # divide by sum of all probabilites to convert into valid probability distribution
-        for i in range(len(prob_author_block)):
-            prob_author_block[i][0] /= temp_sum
 
         prob_author_block.sort(reverse = True)
 
@@ -131,7 +127,13 @@ class Heuristic_Extractor(Extractor):
         '''
         while (True):
             valid_blocks = []
-            curr_mean = mean([prob * height for prob, _, height in prob_author_block])
+
+            temp_sum = sum([prob for prob, _, __ in prob_author_block])
+
+            for i in range(len(prob_author_block)):
+                prob_author_block[i][0] /= temp_sum
+
+            curr_mean = sum([prob * height for prob, _, height in prob_author_block])
             
             for prob, block_num, mean_height in prob_author_block:
                 if (abs(mean_height - curr_mean) < deviation):
@@ -142,9 +144,12 @@ class Heuristic_Extractor(Extractor):
                 continue
 
             for block_num in valid_blocks:
-                authors.append(
-                    ' '.join(df[df['block_num'] == block_num]['text'])
-                )
+                phrase = ' '.join(df[df['block_num'] == block_num]['text'])
+
+                labels = [i.label_ for i in nlp(phrase).ents]
+
+                if ('PERSON' in labels):
+                    authors.append(phrase)
 
             break
 
@@ -157,8 +162,6 @@ class Heuristic_Extractor(Extractor):
             df = df[df['block_num'] != block_num_largest_font]
         except:
             pass
-        
-        nlp = en_core_web_sm.load()
 
         publishers = []
 

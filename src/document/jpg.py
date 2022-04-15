@@ -6,6 +6,7 @@ import numpy as np
 from io import StringIO
 import pandas as pd
 from extractor.heuristic_extractor import Heuristic_Extractor
+from csv import QUOTE_NONE
 
 class JPG(Document):
     def __init__(self, path: str = None):
@@ -33,11 +34,12 @@ class JPG(Document):
         path = self.__path
 
         try:
-            img = Image.open(path).convert('L')
+            fn = lambda x : 255 if x > 128 else 0
+            img = Image.open(path).convert('L').point(fn, mode='1')
         except:
             raise FileNotFoundError("Invalid Path")
 
-        self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t')
+        self.__content = pd.read_csv(StringIO(pytesseract.image_to_data(img)), sep='\t', quoting=QUOTE_NONE)
         
     def __extract(self):
         self.info = Heuristic_Extractor.extract(self.__content)
