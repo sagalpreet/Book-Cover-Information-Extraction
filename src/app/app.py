@@ -66,7 +66,7 @@ class App:
             writer = pd.ExcelWriter(file_path, engine='openpyxl')
             output.to_excel(writer, sheet_name = f'{basename(self.files[0])}', encoding='utf8')
             writer.save()
-            print(f"Saved/ at {file_path}")
-            print(output)
+            print(f"Saved at {file_path}")
+            print(output.to_string())
         except IndexError:
             pass

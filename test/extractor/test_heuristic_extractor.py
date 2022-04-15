@@ -14,7 +14,7 @@ def test_heuristic_extractor_1():
 
 def test_heuristic_extractor_2():
     info = get_info('test/assets/halliday.jpg')
-    assert info['publishers'] == ['AMIT GUPTA']
+    assert info['publishers'] == ['Wiley']
 
 def test_valid_name():
     f = Heuristic_Extractor._Heuristic_Extractor__get_authors
